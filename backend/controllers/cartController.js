@@ -33,17 +33,29 @@ exports.addToCart = async (req, res) => {
       cart = new Cart({ user: req.user._id, items: [] });
     }
 
+    cart.items = (cart.items || []).filter(item => item && item.product);
+    for (const item of cart.items) {
+      const itemPrice = Number(item.price);
+      if (!Number.isFinite(itemPrice)) {
+        const productDoc = await Product.findById(item.product);
+        item.price = Number.isFinite(Number(productDoc?.price ?? productDoc?.originalPrice ?? 0))
+          ? Number(productDoc.price ?? productDoc.originalPrice ?? 0)
+          : 0;
+      }
+    }
+
     const normalizedProductId = productId.toString();
     const existingItem = cart.items.find(item => {
       const itemProductId = item.product?.toString?.();
       return itemProductId && itemProductId === normalizedProductId;
     });
 
+    const safePrice = Number.isFinite(Number(product.price)) ? Number(product.price) : 0;
     if (existingItem) {
       existingItem.quantity += quantity;
-      existingItem.price = product.price;
+      existingItem.price = safePrice;
     } else {
-      cart.items.push({ product: productId, quantity, price: product.price });
+      cart.items.push({ product: productId, quantity, price: safePrice });
     }
 
     cart.calculateTotal();

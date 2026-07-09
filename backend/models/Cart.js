@@ -32,9 +32,30 @@ const cartSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
+cartSchema.pre('save', function(next) {
+  this.items = (this.items || []).filter(item => item && item.product);
+
+  this.items.forEach(item => {
+    const parsedQuantity = Number(item.quantity);
+    item.quantity = Number.isFinite(parsedQuantity) && parsedQuantity > 0 ? parsedQuantity : 1;
+
+    const parsedPrice = Number(item.price);
+    item.price = Number.isFinite(parsedPrice) ? parsedPrice : 0;
+  });
+
+  this.totalAmount = this.items.reduce((total, item) => {
+    return total + (Number(item.price) * Number(item.quantity));
+  }, 0);
+
+  this.totalAmount = Number.isFinite(this.totalAmount) ? this.totalAmount : 0;
+  next();
+});
+
 cartSchema.methods.calculateTotal = function() {
   this.totalAmount = this.items.reduce((total, item) => {
-    return total + (item.price * item.quantity);
+    const parsedQuantity = Number(item.quantity);
+    const parsedPrice = Number(item.price);
+    return total + ((Number.isFinite(parsedPrice) ? parsedPrice : 0) * (Number.isFinite(parsedQuantity) && parsedQuantity > 0 ? parsedQuantity : 1));
   }, 0);
 };
 
