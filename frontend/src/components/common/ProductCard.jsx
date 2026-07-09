@@ -32,8 +32,10 @@ export default function ProductCard({ product }) {
   const discount = originalPriceValue > 0 && displayPrice > 0 ? Math.round((1 - displayPrice / originalPriceValue) * 100) : 0;
 
   const handleBuyNow = async () => {
-    await addToCart(product._id);
-    navigate('/checkout');
+    const success = await addToCart(product._id);
+    if (success) {
+      navigate('/checkout');
+    }
   };
 
   return (

@@ -23,7 +23,16 @@ export const CartProvider = ({ children }) => {
   useEffect(() => { fetchCart(); }, [fetchCart]);
 
   const addToCart = async (productId, quantity = 1) => {
-    if (!user) { toast.error('Please login to add items to cart'); return false; }
+    if (!user) {
+      toast.error('Please login to add items to cart');
+      setCartLoading(false);
+      return false;
+    }
+    if (!productId) {
+      toast.error('Invalid product selected');
+      setCartLoading(false);
+      return false;
+    }
     setCartLoading(true);
     try {
       const { data } = await cartAPI.addToCart(productId, quantity);
