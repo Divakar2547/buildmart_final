@@ -3,25 +3,22 @@ const Product = require('../models/Product');
 
 exports.getCart = async (req, res) => {
   try {
-    let cart = await Cart.findOne({ user: req.user._id }).populate('items.product');
+    const cart = await Cart.findOne({ user: req.user._id }).populate('items.product');
     if (!cart) {
-      cart = { items: [], totalAmount: 0 };
-    } else {
-      // Repair stale zero-price items using the current product price
-      let dirty = false;
-      for (const item of cart.items) {
-        if (item.product && (!item.price || item.price === 0)) {
-          item.price = Number(item.product.price) || 0;
-          dirty = true;
-        }
-      }
-      if (dirty) {
-        cart.calculateTotal();
-        await cart.save();
-        // Re-populate after save since save() replaces populated docs with ObjectIds
-        await cart.populate('items.product');
-      }
+      return res.json({ success: true, cart: { items: [], totalAmount: 0 } });
     }
+
+    // If any items have a null product (deleted), clean them up in background
+    const hasOrphans = cart.items.some(item => !item.product || !item.product._id);
+    if (hasOrphans) {
+      await Cart.findByIdAndUpdate(cart._id, {
+        $pull: { items: { product: null } }
+      });
+      // Return fresh populated cart after cleanup
+      const cleaned = await Cart.findById(cart._id).populate('items.product');
+      return res.json({ success: true, cart: cleaned });
+    }
+
     res.json({ success: true, cart });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

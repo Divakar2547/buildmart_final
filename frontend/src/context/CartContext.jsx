@@ -8,15 +8,18 @@ const CartContext = createContext(null);
 export const CartProvider = ({ children }) => {
   const { user } = useAuth();
   const [cart, setCart] = useState({ items: [], totalAmount: 0 });
-  const [cartLoading, setCartLoading] = useState(false);
+  const [cartLoading, setCartLoading] = useState(true);
 
   const fetchCart = useCallback(async () => {
     if (!user) { setCart({ items: [], totalAmount: 0 }); return; }
+    setCartLoading(true);
     try {
       const { data } = await cartAPI.getCart();
       setCart(data.cart);
     } catch (err) {
       console.error('Fetch cart error:', err);
+    } finally {
+      setCartLoading(false);
     }
   }, [user]);
 

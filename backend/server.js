@@ -13,6 +13,8 @@ app.use(cors({
     const allowed = [
       'http://localhost:3000',
       'http://localhost:5173',
+      'https://buildmart-final.vercel.app',
+      'https://day-16-backend-repo-divakar2547.onrender.com',
       process.env.FRONTEND_URL,
     ].filter(Boolean);
     if (!origin || allowed.includes(origin) || origin.endsWith('.render.com') || origin.endsWith('.vercel.app') || origin.endsWith('.netlify.app')) {

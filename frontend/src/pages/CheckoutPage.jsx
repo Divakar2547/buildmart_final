@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CreditCard, MapPin, Package, Check, Truck, Calendar, QrCode, X } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -36,11 +36,13 @@ function getShipping(total) {
 }
 
 export default function CheckoutPage() {
-  const { cart, clearCart } = useCart();
+  const { cart, clearCart, fetchCart, cartLoading } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [processing, setProcessing] = useState(false);
+
+  useEffect(() => { fetchCart(); }, []);
 
   const [address, setAddress] = useState({
     name: user?.name || '',
@@ -55,7 +57,7 @@ export default function CheckoutPage() {
 
   const items = cart.items || [];
   const subtotal = items.reduce((sum, item) => {
-    const price = Number(item.price) || Number(item.product?.price) || 0;
+    const price = Number(item.product?.price) || Number(item.price) || 0;
     return sum + (price * (Number(item.quantity) || 0));
   }, 0);
   const shipping = getShipping(subtotal);
@@ -71,7 +73,7 @@ export default function CheckoutPage() {
     return validItems.map(item => ({
       product: item.product._id,
       name: item.product.name,
-      price: Number(item.price) || Number(item.product.price) || 0,
+      price: Number(item.product.price) || Number(item.price) || 0,
       quantity: item.quantity,
       image: item.product?.images?.[0]?.url || '',
     }));
@@ -289,6 +291,15 @@ export default function CheckoutPage() {
     }
   };
 
+  if (cartLoading) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-20 text-center">
+        <div className="spinner mx-auto mb-4" />
+        <p className="text-steel-500">Loading your cart...</p>
+      </div>
+    );
+  }
+
   if (items.length === 0) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 text-center">
@@ -367,10 +378,10 @@ export default function CheckoutPage() {
               <div className="space-y-4 mb-6">
                 {items.map(item => {
                   const product = item.product;
-                  const unitPrice = Number(item.price) || Number(product?.price) || 0;
+                  const unitPrice = Number(item.product?.price) || Number(item.price) || 0;
                   const itemQuantity = Number(item.quantity) || 0;
-                  const displayImage = product?.images?.[0]?.url || item.image || 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=100&q=80';
-                  const displayName = product?.name || 'Product unavailable';
+                  const displayImage = product?.images?.[0]?.url || 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=100&q=80';
+                  const displayName = product?.name || 'Unknown Product';
 
                   return (
                     <div key={item._id} className="flex items-center gap-3 py-3 border-b border-steel-100 last:border-0">
