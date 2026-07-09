@@ -6,6 +6,7 @@ const { protect } = require('../middleware/auth');
 router.get('/key', protect, getRazorpayKey);
 router.post('/create-order', protect, createRazorpayOrder);
 router.post('/verify', protect, verifyPayment);
+router.get('/qr-code', protect, createQrCode);
 router.post('/qr-code', protect, createQrCode);
 
 module.exports = router;
