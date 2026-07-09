@@ -54,10 +54,13 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState('online');
 
   const items = cart.items || [];
-  const shipping = getShipping(cart.totalAmount);
+  const subtotal = items.reduce((sum, item) => {
+    return sum + ((Number(item.price) || 0) * (Number(item.quantity) || 0));
+  }, 0);
+  const shipping = getShipping(subtotal);
   const delivery = getDeliveryRange();
-  const tax = Math.round(cart.totalAmount * 0.18);
-  const grandTotal = cart.totalAmount + shipping + tax;
+  const tax = Math.round(subtotal * 0.18);
+  const grandTotal = subtotal + shipping + tax;
 
   const buildOrderItems = () => {
     const validItems = items.filter(item => item.product);
@@ -126,7 +129,7 @@ export default function CheckoutPage() {
           method: 'UPI QR Code',
           status: 'completed',
         },
-        itemsTotal: cart.totalAmount,
+        itemsTotal: subtotal,
         shippingCost: shipping,
         tax,
         totalAmount: grandTotal,
@@ -156,7 +159,7 @@ export default function CheckoutPage() {
           items: orderItems,
           shippingAddress: address,
           paymentInfo: { method: 'Cash on Delivery', status: 'pending' },
-          itemsTotal: cart.totalAmount,
+          itemsTotal: subtotal,
           shippingCost: shipping,
           tax,
           totalAmount: grandTotal,
@@ -179,7 +182,7 @@ export default function CheckoutPage() {
           items: orderItems,
           shippingAddress: address,
           paymentInfo: { method: 'EMI', status: 'pending' },
-          itemsTotal: cart.totalAmount,
+          itemsTotal: subtotal,
           shippingCost: shipping,
           tax,
           totalAmount: grandTotal,
@@ -211,12 +214,11 @@ export default function CheckoutPage() {
             method: 'Mock (Development)',
             status: 'completed'
           },
-          itemsTotal: cart.totalAmount,
+          itemsTotal: subtotal,
           shippingCost: shipping,
           tax,
           totalAmount: grandTotal,
         });
-
         clearCart();
         toast.success('Order placed successfully!');
         navigate(`/orders/${orderData.order._id}`);
@@ -261,7 +263,7 @@ export default function CheckoutPage() {
                   razorpaySignature: response.razorpay_signature,
                   status: 'completed',
                 },
-                itemsTotal: cart.totalAmount,
+                itemsTotal: subtotal,
                 shippingCost: shipping,
                 tax,
                 totalAmount: grandTotal,
@@ -525,7 +527,7 @@ export default function CheckoutPage() {
           <div className="space-y-2.5 text-sm">
             <div className="flex justify-between text-steel-600">
               <span>Price ({items.length} items)</span>
-              <span>{formatPrice(cart.totalAmount)}</span>
+              <span>{formatPrice(subtotal)}</span>
             </div>
             <div className="flex justify-between text-steel-600">
               <span>Delivery Charge</span>
@@ -552,10 +554,10 @@ export default function CheckoutPage() {
             </div>
             <div className="px-3 py-2 space-y-1.5 text-xs">
               {[
-                { label: 'Below ₹500', charge: '₹399', active: cart.totalAmount < 500 },
-                { label: '₹500 – ₹1,999', charge: '₹299', active: cart.totalAmount >= 500 && cart.totalAmount < 2000 },
-                { label: '₹2,000 – ₹4,999', charge: '₹149', active: cart.totalAmount >= 2000 && cart.totalAmount < 5000 },
-                { label: '₹5,000 & above', charge: 'FREE', active: cart.totalAmount >= 5000 },
+                { label: 'Below ₹500', charge: '₹399', active: subtotal < 500 },
+                { label: '₹500 – ₹1,999', charge: '₹299', active: subtotal >= 500 && subtotal < 2000 },
+                { label: '₹2,000 – ₹4,999', charge: '₹149', active: subtotal >= 2000 && subtotal < 5000 },
+                { label: '₹5,000 & above', charge: 'FREE', active: subtotal >= 5000 },
               ].map(row => (
                 <div key={row.label} className="flex justify-between items-center py-0.5 px-1 rounded"
                   style={row.active ? { backgroundColor: '#fef3c7' } : {}}>
@@ -580,9 +582,9 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {cart.totalAmount < 5000 && (
+          {subtotal < 5000 && (
             <p className="text-xs mt-3 flex items-center gap-1" style={{ color: '#6b7280' }}>
-              <Truck size={12} /> Add {formatPrice(5000 - cart.totalAmount)} more for <span className="text-green-600 font-medium ml-1">FREE shipping</span>
+              <Truck size={12} /> Add {formatPrice(5000 - subtotal)} more for <span className="text-green-600 font-medium ml-1">FREE shipping</span>
             </p>
           )}
         </div>

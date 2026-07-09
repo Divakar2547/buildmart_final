@@ -37,11 +37,15 @@ function getShipping(total) {
 export default function CartPage() {
   const { cart, cartLoading, updateQuantity, removeFromCart } = useCart();
   const items = cart.items || [];
+  const itemCount = items.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
+  const subtotal = items.reduce((sum, item) => {
+    return sum + ((Number(item.price) || 0) * (Number(item.quantity) || 0));
+  }, 0);
 
-  const shipping = getShipping(cart.totalAmount);
+  const shipping = getShipping(subtotal);
   const deliveryRange = getDeliveryRange();
-  const tax = Math.round(cart.totalAmount * 0.18);
-  const grandTotal = cart.totalAmount + shipping + tax;
+  const tax = Math.round(subtotal * 0.18);
+  const grandTotal = subtotal + shipping + tax;
 
   if (items.length === 0) {
     return (
@@ -58,7 +62,7 @@ export default function CartPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-2xl font-bold text-white mb-8">Shopping Cart ({items.length} items)</h1>
+      <h1 className="text-2xl font-bold text-white mb-8">Shopping Cart ({itemCount} items)</h1>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Items */}
         <div className="lg:col-span-2 space-y-4">
@@ -127,7 +131,7 @@ export default function CartPage() {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between text-steel-300">
                 <span>Items Total</span>
-                <span>{formatPrice(cart.totalAmount)}</span>
+                <span>{formatPrice(subtotal)}</span>
               </div>
               <div className="flex justify-between text-steel-300">
                 <span>Shipping</span>
@@ -163,12 +167,12 @@ export default function CartPage() {
 
             {/* Shipping tiers */}
             <div className="mt-3 text-xs text-steel-500 space-y-1">
-              {cart.totalAmount < 5000 && (
+              {subtotal < 5000 && (
                 <p className="flex items-center gap-1">
-                  <Truck size={12} /> Add {formatPrice(5000 - cart.totalAmount)} more for <span className="text-green-400 font-medium">FREE shipping</span>
+                  <Truck size={12} /> Add {formatPrice(5000 - subtotal)} more for <span className="text-green-400 font-medium">FREE shipping</span>
                 </p>
               )}
-              {cart.totalAmount < 2000 && (
+              {subtotal < 2000 && (
                 <p>Orders ₹2,000–₹4,999 → ₹149 shipping</p>
               )}
             </div>
