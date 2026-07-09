@@ -14,8 +14,6 @@ const CATEGORY_IMAGES = {
   'Paint': 'https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=600&q=80',
 };
 
-<<<<<<< HEAD
-=======
 const getDeliveryRange = () => {
   const today = new Date();
   const addBusinessDays = (date, days) => {
@@ -38,7 +36,6 @@ const getDeliveryCharge = (amount) => {
   return 399;
 };
 
->>>>>>> 9bfad171651f917b5d8197f8ee0d189aee8051c4
 export default function ProductDetailPage() {
   const { id } = useParams();
   const { addToCart, cartLoading } = useCart();
@@ -78,9 +75,6 @@ export default function ProductDetailPage() {
   );
 
   const imageUrl = product.images?.[0]?.url || CATEGORY_IMAGES[product.category] || 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&q=80';
-<<<<<<< HEAD
-  const discount = product.originalPrice ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
-=======
   const priceValue = Number(product?.price ?? product?.originalPrice ?? 0);
   const originalPriceValue = Number(product?.originalPrice ?? 0);
   const displayPrice = Number.isFinite(priceValue) ? priceValue : 0;
@@ -88,7 +82,6 @@ export default function ProductDetailPage() {
   const deliveryRange = getDeliveryRange();
   const deliveryCharge = getDeliveryCharge(displayPrice);
   const descriptionText = product.description || `Premium ${product.name} by ${product.brand || 'BuildMart'} with reliable quality for construction and home improvement needs.`;
->>>>>>> 9bfad171651f917b5d8197f8ee0d189aee8051c4
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -143,26 +136,15 @@ export default function ProductDetailPage() {
           {/* Price */}
           <div className="bg-steel-50 rounded-xl p-4">
             <div className="flex items-baseline gap-3">
-<<<<<<< HEAD
-              <span className="text-3xl font-bold text-steel-900">{formatPrice(product.price)}</span>
-              <span className="text-steel-500">/ {product.unit}</span>
-              {product.originalPrice && (
-                <>
-                  <span className="text-steel-400 line-through text-lg">{formatPrice(product.originalPrice)}</span>
-=======
               <span className="text-3xl font-bold text-steel-900">{formatPrice(displayPrice)}</span>
               <span className="text-steel-500">/ {product.unit}</span>
               {originalPriceValue > 0 && (
                 <>
                   <span className="text-steel-400 line-through text-lg">{formatPrice(originalPriceValue)}</span>
->>>>>>> 9bfad171651f917b5d8197f8ee0d189aee8051c4
                   <span className="text-green-600 font-semibold text-sm">{discount}% off</span>
                 </>
               )}
             </div>
-<<<<<<< HEAD
-            <p className="text-xs text-steel-500 mt-1">* Prices exclude GST. GST will be added at checkout.</p>
-=======
             <p className="text-xs text-steel-500 mt-1">Price shown in Indian Rupees (₹). GST will be added at checkout.</p>
           </div>
 
@@ -180,7 +162,6 @@ export default function ProductDetailPage() {
               </div>
               <p className="text-xs text-steel-500">Free delivery on orders above ₹5,000.</p>
             </div>
->>>>>>> 9bfad171651f917b5d8197f8ee0d189aee8051c4
           </div>
 
           {/* Stock */}
@@ -238,12 +219,7 @@ export default function ProductDetailPage() {
 
           {/* Description */}
           <div>
-<<<<<<< HEAD
-            <h3 className="font-semibold text-steel-800 mb-2">Description</h3>
-            <p className="text-steel-600 text-sm leading-relaxed">{product.description}</p>
-=======
             <p className="text-steel-600 text-sm leading-relaxed">{descriptionText}</p>
->>>>>>> 9bfad171651f917b5d8197f8ee0d189aee8051c4
           </div>
 
           {/* Specifications */}

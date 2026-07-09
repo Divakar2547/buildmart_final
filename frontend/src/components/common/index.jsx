@@ -52,17 +52,10 @@ export const StatusBadge = ({ status }) => {
   );
 };
 
-<<<<<<< HEAD
-export const formatPrice = (price) => new Intl.NumberFormat('en-IN', {
-  style: 'currency', currency: 'INR', minimumFractionDigits: 0
-}).format(price);
-=======
 export const formatPrice = (price) => {
   const numericPrice = Number(price);
   if (!Number.isFinite(numericPrice)) return '₹0';
-
   return new Intl.NumberFormat('en-IN', {
     style: 'currency', currency: 'INR', minimumFractionDigits: 0
   }).format(numericPrice);
 };
->>>>>>> 9bfad171651f917b5d8197f8ee0d189aee8051c4

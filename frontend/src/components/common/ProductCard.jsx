@@ -3,20 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Star, Package, Zap } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 
-<<<<<<< HEAD
-const formatPrice = (price) => new Intl.NumberFormat('en-IN', {
-  style: 'currency', currency: 'INR', minimumFractionDigits: 0
-}).format(price);
-=======
 const formatPrice = (price) => {
   const numericPrice = Number(price);
   if (!Number.isFinite(numericPrice)) return '₹0';
-
   return new Intl.NumberFormat('en-IN', {
     style: 'currency', currency: 'INR', minimumFractionDigits: 0
   }).format(numericPrice);
 };
->>>>>>> 9bfad171651f917b5d8197f8ee0d189aee8051c4
 
 const CATEGORY_IMAGES = {
   'Cement': 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&q=80',
@@ -33,14 +26,10 @@ export default function ProductCard({ product }) {
   const { addToCart, cartLoading } = useCart();
   const navigate = useNavigate();
   const imageUrl = product.images?.[0]?.url || CATEGORY_IMAGES[product.category] || 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&q=80';
-<<<<<<< HEAD
-  const discount = product.originalPrice ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
-=======
   const priceValue = Number(product?.price ?? product?.originalPrice ?? 0);
   const originalPriceValue = Number(product?.originalPrice ?? 0);
   const displayPrice = Number.isFinite(priceValue) ? priceValue : 0;
   const discount = originalPriceValue > 0 && displayPrice > 0 ? Math.round((1 - displayPrice / originalPriceValue) * 100) : 0;
->>>>>>> 9bfad171651f917b5d8197f8ee0d189aee8051c4
 
   const handleBuyNow = async () => {
     await addToCart(product._id);
@@ -101,17 +90,10 @@ export default function ProductCard({ product }) {
         )}
 
         <div className="flex items-baseline gap-2 mt-auto mb-3">
-<<<<<<< HEAD
-          <span className="text-lg font-bold" style={{ color: '#f59e0b' }}>{formatPrice(product.price)}</span>
-          <span className="text-xs" style={{ color: '#6b7280' }}>/ {product.unit}</span>
-          {product.originalPrice && (
-            <span className="text-xs line-through ml-1" style={{ color: '#4b5563' }}>{formatPrice(product.originalPrice)}</span>
-=======
           <span className="text-lg font-bold" style={{ color: '#f59e0b' }}>{formatPrice(displayPrice)}</span>
           <span className="text-xs" style={{ color: '#6b7280' }}>/ {product.unit}</span>
           {originalPriceValue > 0 && (
             <span className="text-xs line-through ml-1" style={{ color: '#4b5563' }}>{formatPrice(originalPriceValue)}</span>
->>>>>>> 9bfad171651f917b5d8197f8ee0d189aee8051c4
           )}
         </div>
 
