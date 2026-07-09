@@ -13,7 +13,7 @@ const CATEGORIES = [
   { name: 'Sand & Aggregate',img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTepmoMdj6oSdDGGrpTNj5rQ7kkgOnfLJ3HVRX4QXR3zKldDRazUSxIUio&s=10?w=300&q=80' },
   { name: 'Bricks',          img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXwweTB_bNKqKColJXWLI96qMR3hgls6lTxyPzYRR0WhnDaolYkjfwnnA&s=10?w=300&q=80' },
   { name: 'Paint',           img: 'https://www.badarihardwares.com/cdn/shop/files/AsianPaintsRoyaleLuxuryEmulsionWallPaint-White.jpg?v=1772711427?w=300&q=80' },
-  { name: 'Pipes & Fittings',img: 'https://www.tmtplus.co.in/wp-content/uploads/2024/04/cpvc-pipe.jpg?w=300&q=80' },
+  { name: 'Pipes & Fittings',img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWSUxhCAA315U80DokWpPaiCfef2OrhyJe-ALe_p-BIg&s=10?w=300&q=80' },
   { name: 'Electrical',      img: 'https://5.imimg.com/data5/SELLER/Default/2020/8/TJ/KE/CI/35340405/electrical-cable.png?w=300&q=80' },
 ];
 
