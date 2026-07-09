@@ -55,7 +55,8 @@ export default function CheckoutPage() {
 
   const items = cart.items || [];
   const subtotal = items.reduce((sum, item) => {
-    return sum + ((Number(item.price) || 0) * (Number(item.quantity) || 0));
+    const price = Number(item.price) || Number(item.product?.price) || 0;
+    return sum + (price * (Number(item.quantity) || 0));
   }, 0);
   const shipping = getShipping(subtotal);
   const delivery = getDeliveryRange();
@@ -70,7 +71,7 @@ export default function CheckoutPage() {
     return validItems.map(item => ({
       product: item.product._id,
       name: item.product.name,
-      price: item.price,
+      price: Number(item.price) || Number(item.product.price) || 0,
       quantity: item.quantity,
       image: item.product?.images?.[0]?.url || '',
     }));
@@ -364,23 +365,31 @@ export default function CheckoutPage() {
             <div className="card p-6">
               <h2 className="font-bold text-steel-800 mb-5 flex items-center gap-2"><Package size={18} className="text-primary-500" /> Order Review</h2>
               <div className="space-y-4 mb-6">
-                {items.map(item => (
-                  <div key={item._id} className="flex items-center gap-3 py-3 border-b border-steel-100 last:border-0">
-                    <div className="w-14 h-14 bg-steel-50 rounded-lg overflow-hidden flex-shrink-0">
-                      <img
-                        src={item.product?.images?.[0]?.url || 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=100&q=80'}
-                        alt={item.product?.name || item.name || 'Product image'}
-                        className="w-full h-full object-cover"
-                        onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=100&q=80'; }}
-                      />
+                {items.map(item => {
+                  const product = item.product;
+                  const unitPrice = Number(item.price) || Number(product?.price) || 0;
+                  const itemQuantity = Number(item.quantity) || 0;
+                  const displayImage = product?.images?.[0]?.url || item.image || 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=100&q=80';
+                  const displayName = product?.name || 'Product unavailable';
+
+                  return (
+                    <div key={item._id} className="flex items-center gap-3 py-3 border-b border-steel-100 last:border-0">
+                      <div className="w-14 h-14 bg-steel-50 rounded-lg overflow-hidden flex-shrink-0">
+                        <img
+                          src={displayImage}
+                          alt={displayName}
+                          className="w-full h-full object-cover"
+                          onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=100&q=80'; }}
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-steel-800 line-clamp-1">{displayName}</p>
+                        <p className="text-xs text-steel-500">Qty: {itemQuantity} × {formatPrice(unitPrice)}</p>
+                      </div>
+                      <p className="font-semibold text-steel-900">{formatPrice(unitPrice * itemQuantity)}</p>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-steel-800 line-clamp-1">{item.product?.name || item.name || 'Unknown product'}</p>
-                      <p className="text-xs text-steel-500">Qty: {item.quantity} × {formatPrice(item.price)}</p>
-                    </div>
-                    <p className="font-semibold text-steel-900">{formatPrice(item.price * item.quantity)}</p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               <div className="bg-steel-50 rounded-lg p-4 mb-4">
                 <p className="text-sm font-medium text-steel-700 mb-1">Delivery to:</p>

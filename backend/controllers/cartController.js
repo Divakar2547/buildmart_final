@@ -6,6 +6,21 @@ exports.getCart = async (req, res) => {
     let cart = await Cart.findOne({ user: req.user._id }).populate('items.product');
     if (!cart) {
       cart = { items: [], totalAmount: 0 };
+    } else {
+      // Repair stale zero-price items using the current product price
+      let dirty = false;
+      for (const item of cart.items) {
+        if (item.product && (!item.price || item.price === 0)) {
+          item.price = Number(item.product.price) || 0;
+          dirty = true;
+        }
+      }
+      if (dirty) {
+        cart.calculateTotal();
+        await cart.save();
+        // Re-populate after save since save() replaces populated docs with ObjectIds
+        await cart.populate('items.product');
+      }
     }
     res.json({ success: true, cart });
   } catch (error) {
