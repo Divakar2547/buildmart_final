@@ -16,6 +16,10 @@ exports.getCart = async (req, res) => {
 exports.addToCart = async (req, res) => {
   try {
     const { productId, quantity = 1 } = req.body;
+    if (!productId) {
+      return res.status(400).json({ success: false, message: 'Product ID is required' });
+    }
+
     const product = await Product.findById(productId);
     if (!product || !product.isActive) {
       return res.status(404).json({ success: false, message: 'Product not found' });
@@ -29,7 +33,12 @@ exports.addToCart = async (req, res) => {
       cart = new Cart({ user: req.user._id, items: [] });
     }
 
-    const existingItem = cart.items.find(item => item.product.toString() === productId);
+    const normalizedProductId = productId.toString();
+    const existingItem = cart.items.find(item => {
+      const itemProductId = item.product?.toString?.();
+      return itemProductId && itemProductId === normalizedProductId;
+    });
+
     if (existingItem) {
       existingItem.quantity += quantity;
       existingItem.price = product.price;
