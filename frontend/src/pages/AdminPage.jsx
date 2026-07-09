@@ -105,13 +105,8 @@ export default function AdminPage() {
   };
 
   const saveProduct = async () => {
-<<<<<<< HEAD
-    if (!productForm.name || !productForm.price || !productForm.stock) {
-      toast.error('Name, price and stock are required');
-=======
     if (!productForm.name || !productForm.price || !productForm.stock || !productForm.description) {
       toast.error('Name, price, stock and description are required');
->>>>>>> 9bfad171651f917b5d8197f8ee0d189aee8051c4
       return;
     }
     try {
@@ -495,13 +490,10 @@ export default function AdminPage() {
                   <label className="label">Product Name *</label>
                   <input type="text" value={productForm.name} onChange={e => setProductForm(p => ({ ...p, name: e.target.value }))} className="input-field" placeholder="e.g. UltraTech Cement OPC 53 Grade" />
                 </div>
-<<<<<<< HEAD
-=======
                 <div className="sm:col-span-2">
                   <label className="label">Description *</label>
                   <textarea value={productForm.description} onChange={e => setProductForm(p => ({ ...p, description: e.target.value }))} className="input-field" rows={3} placeholder="Describe the product — material, use case, key features..." />
                 </div>
->>>>>>> 9bfad171651f917b5d8197f8ee0d189aee8051c4
                 <div>
                   <label className="label">Category *</label>
                   <select value={productForm.category} onChange={e => setProductForm(p => ({ ...p, category: e.target.value }))} className="input-field">
@@ -531,13 +523,6 @@ export default function AdminPage() {
                   </select>
                 </div>
                 <div className="sm:col-span-2">
-<<<<<<< HEAD
-                  <label className="label">Description *</label>
-                  <textarea value={productForm.description} onChange={e => setProductForm(p => ({ ...p, description: e.target.value }))} className="input-field" rows={3} placeholder="Product description..." />
-                </div>
-                <div className="sm:col-span-2">
-=======
->>>>>>> 9bfad171651f917b5d8197f8ee0d189aee8051c4
                   <label className="label">Image URL</label>
                   <input
                     type="url"
