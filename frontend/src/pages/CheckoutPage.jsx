@@ -59,6 +59,20 @@ export default function CheckoutPage() {
   const tax = Math.round(cart.totalAmount * 0.18);
   const grandTotal = cart.totalAmount + shipping + tax;
 
+  const buildOrderItems = () => {
+    const validItems = items.filter(item => item.product);
+    if (validItems.length !== items.length) {
+      console.warn('Skipping cart items with missing product data');
+    }
+    return validItems.map(item => ({
+      product: item.product._id,
+      name: item.product.name,
+      price: item.price,
+      quantity: item.quantity,
+      image: item.product?.images?.[0]?.url || '',
+    }));
+  };
+
   const handleAddressChange = (e) => {
     setAddress(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -97,13 +111,11 @@ export default function CheckoutPage() {
   };
 
   const handleQrConfirm = async () => {
-    const orderItems = items.map(item => ({
-      product: item.product._id,
-      name: item.product.name,
-      price: item.price,
-      quantity: item.quantity,
-      image: item.product.images?.[0]?.url,
-    }));
+    const orderItems = buildOrderItems();
+    if (!orderItems.length) {
+      toast.error('Unable to place order; some items are unavailable.');
+      return;
+    }
     try {
       const { data: orderData } = await orderAPI.createOrder({
         items: orderItems,
@@ -134,13 +146,12 @@ export default function CheckoutPage() {
     try {
       // Cash on Delivery
       if (paymentMethod === 'cod') {
-        const orderItems = items.map(item => ({
-          product: item.product._id,
-          name: item.product.name,
-          price: item.price,
-          quantity: item.quantity,
-          image: item.product.images?.[0]?.url,
-        }));
+        const orderItems = buildOrderItems();
+        if (!orderItems.length) {
+          toast.error('Unable to place order; some items are unavailable.');
+          setProcessing(false);
+          return;
+        }
         const { data: orderData } = await orderAPI.createOrder({
           items: orderItems,
           shippingAddress: address,
@@ -158,13 +169,12 @@ export default function CheckoutPage() {
 
       // EMI
       if (paymentMethod === 'emi') {
-        const orderItems = items.map(item => ({
-          product: item.product._id,
-          name: item.product.name,
-          price: item.price,
-          quantity: item.quantity,
-          image: item.product.images?.[0]?.url,
-        }));
+        const orderItems = buildOrderItems();
+        if (!orderItems.length) {
+          toast.error('Unable to place order; some items are unavailable.');
+          setProcessing(false);
+          return;
+        }
         const { data: orderData } = await orderAPI.createOrder({
           items: orderItems,
           shippingAddress: address,
@@ -185,13 +195,12 @@ export default function CheckoutPage() {
 
       if (paymentData.order.mock) {
         // Mock payment for development
-        const orderItems = items.map(item => ({
-          product: item.product._id,
-          name: item.product.name,
-          price: item.price,
-          quantity: item.quantity,
-          image: item.product.images?.[0]?.url,
-        }));
+        const orderItems = buildOrderItems();
+        if (!orderItems.length) {
+          toast.error('Unable to place order; some items are unavailable.');
+          setProcessing(false);
+          return;
+        }
 
         const { data: orderData } = await orderAPI.createOrder({
           items: orderItems,
@@ -237,13 +246,11 @@ export default function CheckoutPage() {
             });
 
             if (verifyData.verified) {
-              const orderItems = items.map(item => ({
-                product: item.product._id,
-                name: item.product.name,
-                price: item.price,
-                quantity: item.quantity,
-                image: item.product.images?.[0]?.url,
-              }));
+              const orderItems = buildOrderItems();
+              if (!orderItems.length) {
+                toast.error('Unable to place order; some items are unavailable.');
+                return;
+              }
 
               const { data: orderData } = await orderAPI.createOrder({
                 items: orderItems,
@@ -359,8 +366,8 @@ export default function CheckoutPage() {
                   <div key={item._id} className="flex items-center gap-3 py-3 border-b border-steel-100 last:border-0">
                     <div className="w-14 h-14 bg-steel-50 rounded-lg overflow-hidden flex-shrink-0">
                       <img
-                        src={item.product.images?.[0]?.url || 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=100&q=80'}
-                        alt={item.product.name}
+                        src={item.product?.images?.[0]?.url || 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=100&q=80'}
+                        alt={item.product?.name || item.name || 'Product image'}
                         className="w-full h-full object-cover"
                         onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=100&q=80'; }}
                       />
