@@ -39,7 +39,7 @@ export default function CartPage() {
   const items = cart.items || [];
   const itemCount = items.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
   const subtotal = items.reduce((sum, item) => {
-    return sum + ((Number(item.price) || 0) * (Number(item.quantity) || 0));
+    return sum + ((Number(item.product?.price ?? item.price ?? 0)) * (Number(item.quantity) || 0));
   }, 0);
 
   const shipping = getShipping(subtotal);
@@ -50,9 +50,9 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-20 text-center">
-        <ShoppingCart size={64} className="text-steel-600 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-steel-200 mb-2">Your cart is empty</h2>
-        <p className="text-steel-400 mb-8">Browse our products and add items to get started</p>
+        <ShoppingCart size={64} className="text-steel-400 mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-black mb-2">Your cart is empty</h2>
+        <p className="text-steel-600 mb-8">Browse our products and add items to get started</p>
         <Link to="/products" className="btn-primary inline-flex items-center gap-2">
           Start Shopping <ArrowRight size={18} />
         </Link>
@@ -62,17 +62,18 @@ export default function CartPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-2xl font-bold text-white mb-8">Shopping Cart ({itemCount} items)</h1>
+      <h1 className="text-2xl font-bold text-black mb-8">Shopping Cart ({itemCount} items)</h1>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Items */}
         <div className="lg:col-span-2 space-y-4">
           {items.map((item) => {
             const product = item.product;
             if (!product) return null;
+            const price = Number(product.price ?? item.price ?? 0);
             const imageUrl = product.images?.[0]?.url || CATEGORY_IMAGES[product.category] || '';
             return (
               <div key={item._id} className="card p-4 flex gap-4">
-                <Link to={`/products/${product._id}`} className="w-20 h-20 rounded-xl overflow-hidden bg-steel-900 flex-shrink-0">
+                <Link to={`/products/${product._id}`} className="w-20 h-20 rounded-xl overflow-hidden bg-steel-200 flex-shrink-0">
                   <img
                     src={imageUrl}
                     alt={product.name}
@@ -83,39 +84,39 @@ export default function CartPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between gap-2">
                     <div className="min-w-0">
-                      <Link to={`/products/${product._id}`} className="font-semibold text-steel-100 hover:text-primary-400 transition-colors text-sm line-clamp-2">
+                      <Link to={`/products/${product._id}`} className="font-semibold text-black hover:text-primary-600 transition-colors text-sm line-clamp-2">
                         {product.name}
                       </Link>
-                      <p className="text-xs text-steel-500 mt-0.5">{product.category} • {product.brand}</p>
+                      <p className="text-xs text-steel-600 mt-0.5">{product.category} • {product.brand}</p>
                     </div>
                     <button
                       onClick={() => removeFromCart(item._id)}
-                      className="text-steel-500 hover:text-red-400 transition-colors flex-shrink-0 p-1"
+                      className="text-steel-500 hover:text-red-500 transition-colors flex-shrink-0 p-1"
                     >
                       <Trash2 size={16} />
                     </button>
                   </div>
                   <div className="flex items-center justify-between mt-3">
-                    <div className="flex items-center border border-steel-600 rounded-lg overflow-hidden">
+                    <div className="flex items-center border border-steel-300 rounded-lg overflow-hidden">
                       <button
                         onClick={() => updateQuantity(item._id, item.quantity - 1)}
                         disabled={cartLoading}
-                        className="px-2.5 py-1.5 hover:bg-steel-700 transition-colors text-steel-300"
+                        className="px-2.5 py-1.5 hover:bg-steel-200 transition-colors text-black"
                       >
                         <Minus size={14} />
                       </button>
-                      <span className="px-3 py-1.5 text-sm font-semibold text-steel-100 min-w-[36px] text-center bg-steel-900">{item.quantity}</span>
+                      <span className="px-3 py-1.5 text-sm font-semibold text-black min-w-[36px] text-center bg-steel-100">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item._id, item.quantity + 1)}
                         disabled={cartLoading || item.quantity >= product.stock}
-                        className="px-2.5 py-1.5 hover:bg-steel-700 transition-colors text-steel-300 disabled:opacity-40"
+                        className="px-2.5 py-1.5 hover:bg-steel-200 transition-colors text-black disabled:opacity-40"
                       >
                         <Plus size={14} />
                       </button>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-primary-400">{formatPrice(item.price * item.quantity)}</p>
-                      <p className="text-xs text-steel-500">{formatPrice(item.price)} / {product.unit}</p>
+                      <p className="font-bold text-primary-600">{formatPrice(price * item.quantity)}</p>
+                      <p className="text-xs text-steel-600">{formatPrice(price)} / {product.unit}</p>
                     </div>
                   </div>
                 </div>
@@ -127,32 +128,32 @@ export default function CartPage() {
         {/* Order Summary */}
         <div className="lg:col-span-1">
           <div className="card p-6 sticky top-24">
-            <h2 className="font-bold text-white text-lg mb-5">Order Summary</h2>
+            <h2 className="font-bold text-black text-lg mb-5">Order Summary</h2>
             <div className="space-y-3 text-sm">
-              <div className="flex justify-between text-steel-300">
+              <div className="flex justify-between text-steel-700">
                 <span>Items Total</span>
                 <span>{formatPrice(subtotal)}</span>
               </div>
-              <div className="flex justify-between text-steel-300">
+              <div className="flex justify-between text-steel-700">
                 <span>Shipping</span>
                 {shipping === 0 ? (
-                  <span className="text-green-500 font-medium">FREE</span>
+                  <span className="text-green-600 font-medium">FREE</span>
                 ) : (
                   <span>{formatPrice(shipping)}</span>
                 )}
               </div>
-              <div className="flex justify-between text-steel-300">
+              <div className="flex justify-between text-steel-700">
                 <span>GST (18%)</span>
                 <span>{formatPrice(tax)}</span>
               </div>
               {shipping === 0 && (
-                <p className="text-xs text-green-400 bg-green-900/20 border border-green-800/30 px-3 py-2 rounded-lg flex items-center gap-1">
+                <p className="text-xs text-green-700 bg-green-50 border border-green-200 px-3 py-2 rounded-lg flex items-center gap-1">
                   🎉 You saved on shipping!
                 </p>
               )}
-              <div className="border-t border-steel-700 pt-3 flex justify-between font-bold text-white">
+              <div className="border-t border-steel-300 pt-3 flex justify-between font-bold text-black">
                 <span>Total</span>
-                <span className="text-lg text-primary-400">{formatPrice(grandTotal)}</span>
+                <span className="text-lg text-primary-600">{formatPrice(grandTotal)}</span>
               </div>
             </div>
 
@@ -161,15 +162,15 @@ export default function CartPage() {
               <Calendar size={15} style={{ color: '#f59e0b', flexShrink: 0 }} />
               <div>
                 <p className="text-xs font-semibold" style={{ color: '#f59e0b' }}>Estimated Delivery</p>
-                <p className="text-xs text-steel-300">{deliveryRange}</p>
+                <p className="text-xs text-steel-700">{deliveryRange}</p>
               </div>
             </div>
 
             {/* Shipping tiers */}
-            <div className="mt-3 text-xs text-steel-500 space-y-1">
+            <div className="mt-3 text-xs text-steel-600 space-y-1">
               {subtotal < 5000 && (
                 <p className="flex items-center gap-1">
-                  <Truck size={12} /> Add {formatPrice(5000 - subtotal)} more for <span className="text-green-400 font-medium">FREE shipping</span>
+                  <Truck size={12} /> Add {formatPrice(5000 - subtotal)} more for <span className="text-green-600 font-medium">FREE shipping</span>
                 </p>
               )}
               {subtotal < 2000 && (

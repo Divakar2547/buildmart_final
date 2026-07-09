@@ -56,10 +56,12 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState('online');
 
   const items = cart.items || [];
-  const subtotal = items.reduce((sum, item) => {
-    const price = Number(item.product?.price) || Number(item.price) || 0;
-    return sum + (price * (Number(item.quantity) || 0));
-  }, 0);
+  console.log('CART DEBUG:', JSON.stringify({ totalAmount: cart.totalAmount, items: items.map(i => ({ price: i.price, qty: i.quantity, productPrice: i.product?.price })) }));
+  const getItemPrice = (item) => {
+    const p = item.price ?? item.product?.price;
+    return parseFloat(p) || 0;
+  };
+  const subtotal = parseFloat(cart.totalAmount) || items.reduce((sum, item) => sum + (getItemPrice(item) * (Number(item.quantity) || 0)), 0);
   const shipping = getShipping(subtotal);
   const delivery = getDeliveryRange();
   const tax = Math.round(subtotal * 0.18);
@@ -73,7 +75,7 @@ export default function CheckoutPage() {
     return validItems.map(item => ({
       product: item.product._id,
       name: item.product.name,
-      price: Number(item.product.price) || Number(item.price) || 0,
+      price: getItemPrice(item),
       quantity: item.quantity,
       image: item.product?.images?.[0]?.url || '',
     }));
@@ -378,7 +380,7 @@ export default function CheckoutPage() {
               <div className="space-y-4 mb-6">
                 {items.map(item => {
                   const product = item.product;
-                  const unitPrice = Number(item.product?.price) || Number(item.price) || 0;
+                  const unitPrice = getItemPrice(item);
                   const itemQuantity = Number(item.quantity) || 0;
                   const displayImage = product?.images?.[0]?.url || 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=100&q=80';
                   const displayName = product?.name || 'Unknown Product';

@@ -155,8 +155,8 @@ export default function AdminPage() {
   };
 
   const filteredProducts = products.filter(p =>
-    p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
-    p.category.toLowerCase().includes(productSearch.toLowerCase())
+    (p.name?.toLowerCase() || '').includes(productSearch.toLowerCase()) ||
+    (p.category?.toLowerCase() || '').includes(productSearch.toLowerCase())
   );
 
   return (
