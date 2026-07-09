@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+<<<<<<< HEAD
+*.log
+=======
+*.local
+.DS_Store
+>>>>>>> 9bfad171651f917b5d8197f8ee0d189aee8051c4
