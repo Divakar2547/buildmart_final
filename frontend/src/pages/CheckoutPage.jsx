@@ -53,7 +53,7 @@ export default function CheckoutPage() {
     phone: user?.phone || '',
   });
 
-  const [paymentMethod, setPaymentMethod] = useState('online');
+  const [paymentMethod, setPaymentMethod] = useState('cod');
 
   const items = cart.items || [];
   console.log('CART DEBUG:', JSON.stringify({ totalAmount: cart.totalAmount, items: items.map(i => ({ price: i.price, qty: i.quantity, productPrice: i.product?.price })) }));
@@ -197,98 +197,9 @@ export default function CheckoutPage() {
         navigate(`/orders/${orderData.order._id}`);
         return;
       }
-
-      // Create Razorpay order
-      const { data: paymentData } = await paymentAPI.createOrder({ amount: grandTotal, currency: 'INR' });
-
-      if (paymentData.order.mock) {
-        // Mock payment for development
-        const orderItems = buildOrderItems();
-        if (!orderItems.length) {
-          toast.error('Unable to place order; some items are unavailable.');
-          setProcessing(false);
-          return;
-        }
-
-        const { data: orderData } = await orderAPI.createOrder({
-          items: orderItems,
-          shippingAddress: address,
-          paymentInfo: {
-            razorpayOrderId: paymentData.order.id,
-            razorpayPaymentId: 'pay_mock_' + Date.now(),
-            method: 'Mock (Development)',
-            status: 'completed'
-          },
-          itemsTotal: subtotal,
-          shippingCost: shipping,
-          tax,
-          totalAmount: grandTotal,
-        });
-        clearCart();
-        toast.success('Order placed successfully!');
-        navigate(`/orders/${orderData.order._id}`);
-        return;
-      }
-
-      // Real Razorpay
-      const options = {
-        key: paymentData.key,
-        amount: paymentData.order.amount,
-        currency: 'INR',
-        name: 'BuildMart',
-        description: `Order for ${items.length} item(s)`,
-        order_id: paymentData.order.id,
-        prefill: {
-          name: user?.name,
-          email: user?.email,
-          contact: address.phone,
-        },
-        theme: { color: '#f97316' },
-        handler: async (response) => {
-          try {
-            const { data: verifyData } = await paymentAPI.verifyPayment({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-            });
-
-            if (verifyData.verified) {
-              const orderItems = buildOrderItems();
-              if (!orderItems.length) {
-                toast.error('Unable to place order; some items are unavailable.');
-                return;
-              }
-
-              const { data: orderData } = await orderAPI.createOrder({
-                items: orderItems,
-                shippingAddress: address,
-                paymentInfo: {
-                  razorpayOrderId: response.razorpay_order_id,
-                  razorpayPaymentId: response.razorpay_payment_id,
-                  razorpaySignature: response.razorpay_signature,
-                  status: 'completed',
-                },
-                itemsTotal: subtotal,
-                shippingCost: shipping,
-                tax,
-                totalAmount: grandTotal,
-              });
-
-              clearCart();
-              toast.success('Payment successful! Order placed.');
-              navigate(`/orders/${orderData.order._id}`);
-            }
-          } catch (err) {
-            toast.error('Payment verification failed');
-          }
-        },
-        modal: { ondismiss: () => { setProcessing(false); toast.error('Payment cancelled'); } }
-      };
-
-      const rzp = new window.Razorpay(options);
-      rzp.open();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Payment failed');
+      toast.error(err.response?.data?.message || 'Order placement failed');
+    } finally {
       setProcessing(false);
     }
   };
@@ -444,24 +355,6 @@ export default function CheckoutPage() {
 
               <div className="space-y-3 mb-6">
 
-                {/* Online Payment */}
-                <label className={`flex items-start gap-3 p-4 rounded-xl cursor-pointer border-2 transition-all ${
-                  paymentMethod === 'online' ? 'border-yellow-400 bg-yellow-50' : 'border-steel-200 hover:border-steel-300'
-                }`}>
-                  <input type="radio" name="payment" value="online" checked={paymentMethod === 'online'} onChange={() => setPaymentMethod('online')} className="mt-1 accent-yellow-500" />
-                  <div className="flex-1">
-                    <p className="font-semibold text-steel-800 flex items-center gap-2"><CreditCard size={16} className="text-yellow-500" /> Online Payment</p>
-                    <p className="text-xs text-steel-500 mt-0.5">UPI, Debit/Credit Cards, Net Banking, Wallets via Razorpay</p>
-                    {paymentMethod === 'online' && (
-                      <div className="flex items-center gap-2 mt-2">
-                        {['UPI', 'Visa', 'Mastercard', 'NetBanking'].map(m => (
-                          <span key={m} className="text-xs bg-white border border-steel-200 text-steel-600 px-2 py-0.5 rounded">{m}</span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </label>
-
                 {/* EMI — only if grandTotal >= 10000 */}
                 {grandTotal >= 10000 && (
                   <label className={`flex items-start gap-3 p-4 rounded-xl cursor-pointer border-2 transition-all ${
@@ -532,10 +425,8 @@ export default function CheckoutPage() {
                     <>💵 Place Order (COD)</>
                   ) : paymentMethod === 'emi' ? (
                     <>📅 Confirm EMI Order</>
-                  ) : paymentMethod === 'qr' ? (
-                    <><QrCode size={16} /> Generate QR Code</>
                   ) : (
-                    <><CreditCard size={16} /> Pay {formatPrice(grandTotal)}</>
+                    <><QrCode size={16} /> Generate QR Code</>
                   )}
                 </button>
               </div>

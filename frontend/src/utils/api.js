@@ -69,9 +69,6 @@ export const orderAPI = {
 
 // Payment APIs
 export const paymentAPI = {
-  getRazorpayKey: () => api.get('/payment/key'),
-  createOrder: (data) => api.post('/payment/create-order', data),
-  verifyPayment: (data) => api.post('/payment/verify', data),
   createQrCode: (data) => api.post('/payment/qr-code', data),
 };
 
